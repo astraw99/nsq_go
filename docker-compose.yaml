@@ -1,0 +1,26 @@
+version: '2' # 高版本支持3
+services:
+  nsqlookupd:
+    image: nsqio/nsq
+    command: /nsqlookupd
+    ports:
+      - "4160:4160" # tcp
+      - "4161:4161" # http
+
+  nsqd:
+    image: nsqio/nsq
+    # 广播地址不填的话默认就是oshostname(或虚拟机名称)，那样 lookupd 会连接不上，所以直接写IP
+    command: /nsqd --broadcast-address=10.236.92.208 --lookupd-tcp-address=nsqlookupd:4160
+    depends_on:
+      - nsqlookupd
+    ports:
+      - "4150:4150" # tcp
+      - "4151:4151" # http
+
+  nsqadmin:
+    image: nsqio/nsq
+    command: /nsqadmin --lookupd-http-address=nsqlookupd:4161
+    depends_on:
+      - nsqlookupd
+    ports:
+      - "4171:4171" # http
