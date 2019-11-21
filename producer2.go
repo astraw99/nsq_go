@@ -1,0 +1,30 @@
+package main
+
+import (
+	"fmt"
+	"log"
+	"time"
+
+	"github.com/nsqio/go-nsq"
+)
+
+func main() {
+	config := nsq.NewConfig()
+	p, err := nsq.NewProducer("127.0.0.1:4150", config)
+
+	if err != nil {
+		log.Panic(err)
+	}
+
+	for i := 1000; i < 2000; i++ {
+		msg := fmt.Sprintf("num-%d", i)
+		log.Println("Pub2:" + msg)
+		err = p.Publish("testTopic", []byte(msg))
+		if err != nil {
+			log.Panic(err)
+		}
+		time.Sleep(time.Second * 1)
+	}
+
+	p.Stop()
+}
